@@ -1,0 +1,53 @@
+<html>
+<head>
+	<title>Simple chat server</title> 
+	<script src="http://localhost:3000/socket.io/socket.io.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+	<script type="text/javascript">
+	  var socket = io.connect('http://localhost:3000');
+
+	  socket.on('connect', function () {
+		  socket.on('message', function (data) {
+		  	var newElement = document.createElement('li');
+ 				newElement.innerHTML = data.message[0] + ' says: ' + data.message[1];
+		  	document.getElementById("list").appendChild(newElement);
+		  });
+
+		  socket.on('announcement', function (data) {
+		  	var newElement = document.createElement('li');
+ 				newElement.className = 'announcement';
+ 				newElement.innerHTML = data;
+		  	document.getElementById("list").appendChild(newElement);
+		  });
+
+		  socket.on('history', function (data) {
+		  	data.buffer.forEach(function (item) {
+			  	var newElement = document.createElement('li');
+	 				newElement.innerHTML = item.message[0] + ' says: ' + item.message[1];
+			  	document.getElementById("list").appendChild(newElement);
+		  	});
+		  });
+		});
+
+	  function send_message () {
+	  	socket.emit('message', document.getElementById("msg_input").value);
+	  	document.getElementById("msg_input").value = "";
+	  	return false;
+	  }
+	</script>
+	<div id="container">
+		<div id="history">
+			<ul id="list">
+			</ul>
+		</div>
+		<div id="contorl_panel">
+			<form id="msg_form" onsubmit="return send_message();">
+				<input type="text" id="msg_input" placeholder="Enter your message here..." />
+			</form>
+		</div>
+	</div>
+</body>
+</html>
